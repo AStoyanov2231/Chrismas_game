@@ -21,9 +21,10 @@ const App: React.FC = () => {
   const [lastRevealed, setLastRevealed] = useState<ScratchItemData | null>(null);
   const revealSoundRef = useRef<HTMLAudioElement | null>(null);
 
-  // Preload audio assets (place files in public/sounds/)
+  // Preload audio assets (place files in public/sounds/). Use BASE_URL so GH Pages paths work.
   useEffect(() => {
-    revealSoundRef.current = new Audio('/sounds/reveal.mp3');
+    const revealSrc = `${import.meta.env.BASE_URL}sounds/reveal.mp3`;
+    revealSoundRef.current = new Audio(revealSrc);
     if (revealSoundRef.current) {
       revealSoundRef.current.volume = 0.8;
     }
