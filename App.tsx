@@ -146,9 +146,8 @@ const App: React.FC = () => {
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
                 <div className="bg-holiday-cream text-holiday-dark p-8 rounded-2xl max-w-lg w-full text-center border-4 border-holiday-gold shadow-2xl transform scale-100 animate-bounce-in">
                     <div className="mb-4 text-6xl">✨</div>
-                    <h2 className="font-christmas text-5xl text-holiday-red mb-2">Разкри число!</h2>
+                    <h2 className="font-christmas text-5xl text-holiday-red mb-2">Печелиш подарък!</h2>
                     <p className="text-4xl font-bold text-holiday-green mb-6">{lastRevealed.value}</p>
-                    <p className="text-lg mb-8">Продължи да изтриваш останалите подаръци.</p>
                     <button 
                         onClick={() => setLastRevealed(null)}
                         className="w-full bg-holiday-green hover:bg-green-700 text-white text-xl font-bold py-4 px-8 rounded-xl transition-colors shadow-lg"
@@ -169,8 +168,8 @@ const App: React.FC = () => {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
                 <div className="bg-holiday-cream text-holiday-dark p-8 rounded-2xl max-w-lg w-full text-center border-4 border-holiday-gold shadow-2xl transform scale-100 animate-bounce-in">
                     <div className="mb-4 text-6xl">🎅</div>
-                    <h2 className="font-christmas text-5xl text-holiday-red mb-4">Merry Christmas!</h2>
-                    <p className="text-xl mb-8">Ти откри всички числа! Сребърна година!</p>
+                    <h2 className="font-christmas text-5xl text-holiday-red mb-4">Честита Коледа!</h2>
+                    <p className="text-xl mb-8">Ти откри всички подаръци!</p>
                     <button 
                         onClick={startNewGame}
                         className="w-full bg-holiday-green hover:bg-green-700 text-white text-xl font-bold py-4 px-8 rounded-xl transition-colors shadow-lg"

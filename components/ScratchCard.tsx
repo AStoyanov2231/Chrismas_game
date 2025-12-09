@@ -66,7 +66,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
     ctx.textBaseline = 'bottom';
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 4;
-    ctx.fillText("ИЗТРИИ МЕ", w / 2, h - 10);
+    ctx.fillText("ИЗТРИЙ МЕ", w / 2, h - 10);
     ctx.restore();
 
   }, [item.value]);
@@ -181,9 +181,6 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
         <div className="flex flex-col items-center">
             <span className="text-holiday-red font-christmas font-bold text-5xl drop-shadow-md">
                 {item.value}
-            </span>
-            <span className="text-holiday-green text-xs font-bold uppercase tracking-widest mt-2">
-                Winner!
             </span>
         </div>
       </div>
