@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Snowfall from './components/Snowfall';
 import ScratchCard from './components/ScratchCard';
 import { ScratchItemData } from './types';
@@ -17,6 +17,31 @@ const App: React.FC = () => {
   const [items, setItems] = useState<ScratchItemData[]>([]);
   const [revealedCount, setRevealedCount] = useState(0);
   const [gameWon, setGameWon] = useState(false);
+  const [activeCardId, setActiveCardId] = useState<number | null>(null);
+  const [lastRevealed, setLastRevealed] = useState<ScratchItemData | null>(null);
+  const scratchSoundRef = useRef<HTMLAudioElement | null>(null);
+  const revealSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // Preload audio assets (place files in public/sounds/)
+  useEffect(() => {
+    scratchSoundRef.current = new Audio('/sounds/scratch.mp3');
+    if (scratchSoundRef.current) {
+      scratchSoundRef.current.volume = 0.6;
+    }
+    revealSoundRef.current = new Audio('reveal.mp3');
+    if (revealSoundRef.current) {
+      revealSoundRef.current.volume = 0.8;
+    }
+  }, []);
+
+  const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play().catch(() => {
+      // Ignore autoplay errors; user interaction should allow playback
+    });
+  };
 
   // Initialize Game
   useEffect(() => {
@@ -37,6 +62,8 @@ const App: React.FC = () => {
     setItems(newItems);
     setRevealedCount(0);
     setGameWon(false);
+    setActiveCardId(null);
+    setLastRevealed(null);
   };
 
   const handleReveal = (id: number) => {
@@ -48,11 +75,28 @@ const App: React.FC = () => {
         // Check win condition based on new state
         const count = newItems.filter(i => i.isRevealed).length;
         setRevealedCount(count);
+        const revealedItem = newItems.find(i => i.id === id) || null;
+        setLastRevealed(revealedItem);
         if (count === 15) {
             setGameWon(true);
         }
         return newItems;
     });
+    playSound(revealSoundRef);
+    setActiveCardId(null);
+  };
+
+  const handleStartScratch = (id: number) => {
+    // Prevent switching to another card while currently scratching one
+    if (activeCardId !== null && activeCardId !== id) return;
+    setActiveCardId(id);
+    setLastRevealed(null);
+    playSound(scratchSoundRef);
+  };
+
+  const handleScratchEnd = () => {
+    // Keep the active card locked until it is actually revealed.
+    // No-op here; unlock happens in handleReveal.
   };
 
   return (
@@ -64,15 +108,15 @@ const App: React.FC = () => {
         {/* Header Section */}
         <header className="text-center mb-8 animate-fade-in-down">
           <h1 className="font-christmas text-5xl md:text-7xl text-holiday-red drop-shadow-[0_2px_2px_rgba(255,255,255,0.5)] mb-2">
-            Holiday Scratch & Win
+            Коледна Томбола
           </h1>
-          <p className="text-holiday-gold text-lg md:text-xl font-light tracking-wide mb-6">
-            Reveal all 15 hidden numbers to complete the collection!
-          </p>
+          {/* <p className="text-holiday-gold text-lg md:text-xl font-light tracking-wide mb-6">
+            Открий всички 15 скрити числа, за да завършиш колекцията!
+          </p> */}
           
           <div className="flex items-center justify-center space-x-4 bg-black/40 p-4 rounded-full backdrop-blur-sm border border-holiday-green">
             <div className="flex flex-col items-center px-4">
-                <span className="text-xs text-gray-400 uppercase tracking-wider">Revealed</span>
+                <span className="text-xs text-gray-400 uppercase tracking-wider">Изтрити</span>
                 <span className="text-2xl font-bold text-white">{revealedCount} / 15</span>
             </div>
             {gameWon && (
@@ -80,7 +124,7 @@ const App: React.FC = () => {
                  onClick={startNewGame}
                  className="bg-holiday-red hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full transition-all transform hover:scale-105 shadow-lg border-2 border-holiday-gold"
                >
-                 Play Again
+                 Играй отново
                </button>
             )}
           </div>
@@ -93,29 +137,50 @@ const App: React.FC = () => {
               key={item.id} 
               item={item} 
               onReveal={handleReveal}
+              onStartScratch={handleStartScratch}
+              onScratchEnd={handleScratchEnd}
+              isLocked={activeCardId !== null && activeCardId !== item.id}
               width={160} // Fixed size for consistency, responsiveness handled by grid scaling if needed
               height={160}
             />
           ))}
         </div>
 
-        {/* Footer */}
+        {/* Reveal Overlay */}
+        {lastRevealed && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+                <div className="bg-holiday-cream text-holiday-dark p-8 rounded-2xl max-w-lg w-full text-center border-4 border-holiday-gold shadow-2xl transform scale-100 animate-bounce-in">
+                    <div className="mb-4 text-6xl">✨</div>
+                    <h2 className="font-christmas text-5xl text-holiday-red mb-2">Разкри число!</h2>
+                    <p className="text-4xl font-bold text-holiday-green mb-6">{lastRevealed.value}</p>
+                    <p className="text-lg mb-8">Продължи да изтриваш останалите подаръци.</p>
+                    <button 
+                        onClick={() => setLastRevealed(null)}
+                        className="w-full bg-holiday-green hover:bg-green-700 text-white text-xl font-bold py-4 px-8 rounded-xl transition-colors shadow-lg"
+                    >
+                        Продължи
+                    </button>
+                </div>
+            </div>
+        )}
+
+        {/* Footer
         <footer className="mt-auto py-6 text-center text-gray-500 text-sm">
            <p>© 2024 Christmas Games Inc. Scratch to win happiness!</p>
-        </footer>
+        </footer> */}
 
         {/* Win Overlay Modal */}
-        {gameWon && (
+        {gameWon && !lastRevealed && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
                 <div className="bg-holiday-cream text-holiday-dark p-8 rounded-2xl max-w-lg w-full text-center border-4 border-holiday-gold shadow-2xl transform scale-100 animate-bounce-in">
                     <div className="mb-4 text-6xl">🎅</div>
                     <h2 className="font-christmas text-5xl text-holiday-red mb-4">Merry Christmas!</h2>
-                    <p className="text-xl mb-8">You've revealed all the numbers! Have a wonderful holiday season.</p>
+                    <p className="text-xl mb-8">Ти откри всички числа! Сребърна година!</p>
                     <button 
                         onClick={startNewGame}
                         className="w-full bg-holiday-green hover:bg-green-700 text-white text-xl font-bold py-4 px-8 rounded-xl transition-colors shadow-lg"
                     >
-                        Start New Game
+                        Започни нова игра
                     </button>
                 </div>
             </div>

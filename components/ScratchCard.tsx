@@ -1,7 +1,15 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ScratchCardProps } from '../types';
 
-const ScratchCard: React.FC<ScratchCardProps> = ({ item, onReveal, width = 200, height = 200 }) => {
+const ScratchCard: React.FC<ScratchCardProps> = ({
+  item,
+  onReveal,
+  onStartScratch,
+  onScratchEnd,
+  isLocked,
+  width = 200,
+  height = 200,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isScratching, setIsScratching] = useState(false);
   const [isFullyRevealed, setIsFullyRevealed] = useState(item.isRevealed);
@@ -58,7 +66,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({ item, onReveal, width = 200, 
     ctx.textBaseline = 'bottom';
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 4;
-    ctx.fillText("SCRATCH ME", w / 2, h - 10);
+    ctx.fillText("ИЗТРИИ МЕ", w / 2, h - 10);
     ctx.restore();
 
   }, [item.value]);
@@ -113,6 +121,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({ item, onReveal, width = 200, 
   const reveal = () => {
     setIsFullyRevealed(true);
     onReveal(item.id);
+    onScratchEnd();
     const canvas = canvasRef.current;
     if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -125,7 +134,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({ item, onReveal, width = 200, 
   };
 
   const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isScratching || isFullyRevealed) return;
+    if (isLocked || !isScratching || isFullyRevealed) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -182,17 +191,36 @@ const ScratchCard: React.FC<ScratchCardProps> = ({ item, onReveal, width = 200, 
       {/* Foreground (The Scratch Layer) */}
       <canvas
         ref={canvasRef}
-        className={`absolute inset-0 rounded-xl cursor-pointer touch-none transition-opacity duration-700 ${isFullyRevealed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-        onMouseDown={() => setIsScratching(true)}
+        className={`absolute inset-0 rounded-xl touch-none transition-opacity duration-700 ${
+          isFullyRevealed
+            ? 'opacity-0 pointer-events-none'
+            : isLocked
+              ? 'opacity-100 pointer-events-none cursor-not-allowed'
+              : 'opacity-100 cursor-pointer'
+        }`}
+        onMouseDown={() => {
+          if (isLocked || isFullyRevealed) return;
+          setIsScratching(true);
+          onStartScratch(item.id);
+        }}
         onMouseUp={() => {
             setIsScratching(false);
+            onScratchEnd();
             checkRevealStatus();
         }}
-        onMouseLeave={() => setIsScratching(false)}
+        onMouseLeave={() => {
+            setIsScratching(false);
+            onScratchEnd();
+        }}
         onMouseMove={handleMouseMove}
-        onTouchStart={() => setIsScratching(true)}
+        onTouchStart={() => {
+            if (isLocked || isFullyRevealed) return;
+            setIsScratching(true);
+            onStartScratch(item.id);
+        }}
         onTouchEnd={() => {
             setIsScratching(false);
+            onScratchEnd();
             checkRevealStatus();
         }}
         onTouchMove={handleMouseMove}

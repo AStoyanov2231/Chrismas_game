@@ -7,6 +7,9 @@ export interface ScratchItemData {
 export interface ScratchCardProps {
   item: ScratchItemData;
   onReveal: (id: number) => void;
+  onStartScratch: (id: number) => void;
+  onScratchEnd: () => void;
+  isLocked: boolean;
   width?: number;
   height?: number;
 }
