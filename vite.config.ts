@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // Set the base path so built assets load correctly on GitHub Pages
+      // (update if you deploy under a different repo/name)
+      base: '/Chrismas_game/',
       server: {
         port: 3000,
         host: '0.0.0.0',
