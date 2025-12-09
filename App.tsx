@@ -19,16 +19,11 @@ const App: React.FC = () => {
   const [gameWon, setGameWon] = useState(false);
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [lastRevealed, setLastRevealed] = useState<ScratchItemData | null>(null);
-  const scratchSoundRef = useRef<HTMLAudioElement | null>(null);
   const revealSoundRef = useRef<HTMLAudioElement | null>(null);
 
   // Preload audio assets (place files in public/sounds/)
   useEffect(() => {
-    scratchSoundRef.current = new Audio('/sounds/scratch.mp3');
-    if (scratchSoundRef.current) {
-      scratchSoundRef.current.volume = 0.6;
-    }
-    revealSoundRef.current = new Audio('reveal.mp3');
+    revealSoundRef.current = new Audio('/sounds/reveal.mp3');
     if (revealSoundRef.current) {
       revealSoundRef.current.volume = 0.8;
     }
@@ -91,7 +86,6 @@ const App: React.FC = () => {
     if (activeCardId !== null && activeCardId !== id) return;
     setActiveCardId(id);
     setLastRevealed(null);
-    playSound(scratchSoundRef);
   };
 
   const handleScratchEnd = () => {
