@@ -45,8 +45,8 @@ const App: React.FC = () => {
   }, []);
 
   const startNewGame = () => {
-    // Generate numbers 1-16
-    const numbers = Array.from({ length: 16 }, (_, i) => i + 1);
+    // Generate numbers 1-17
+    const numbers = Array.from({ length: 17 }, (_, i) => i + 1);
     const shuffled = shuffleArray(numbers);
     
     const newItems: ScratchItemData[] = shuffled.map((val, index) => ({
@@ -73,7 +73,7 @@ const App: React.FC = () => {
         setRevealedCount(count);
         const revealedItem = newItems.find(i => i.id === id) || null;
         setLastRevealed(revealedItem);
-        if (count === 16) {
+        if (count === 17) {
             setGameWon(true);
         }
         return newItems;
@@ -112,7 +112,7 @@ const App: React.FC = () => {
           <div className="flex items-center justify-center space-x-4 bg-black/40 p-4 rounded-full backdrop-blur-sm border border-holiday-green">
             <div className="flex flex-col items-center px-4">
                 <span className="text-xs text-gray-400 uppercase tracking-wider">Изтрити</span>
-                <span className="text-2xl font-bold text-white">{revealedCount} / 16</span>
+                <span className="text-2xl font-bold text-white">{revealedCount} / 17</span>
             </div>
             {gameWon && (
                  <button 
